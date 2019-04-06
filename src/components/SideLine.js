@@ -12,9 +12,12 @@ export default class SideLine extends Component{
 
     componentWillMount(){
         this.setState({
-            color: this.props.color
+            color: this.props.color,
+            // course: (Math.random() > 0.5) ? false : true
         })
     }
+
+    
 
     handleMouseOver = () => {
         if (!this.state.fixed)  
@@ -34,17 +37,26 @@ export default class SideLine extends Component{
             })  
     }
 
-    handleClick = () => this.setState ({color: 'green', fixed: true})
+    
+
+    handleClick = (el) => {
+        // console.log(el.currentTarget.attrs.points)
+        if (!this.state.fixed){
+            this.setState ({color: this.props.course ? 'yellow' : 'green', fixed: true})
+            this.props.onClick(el.currentTarget.attrs.points)
+        }
+    }
 
     render(){   
-        const {index, x0, y0, x1, y1} = this.props
+        const { x0, y0, x1, y1} = this.props
+        // console.log(index)
         return(
             <Line
-                key = {index}
+                // key = {index}
                 points ={[x0, y0, x1, y1]}
                 tension ={-0.5}  
                 stroke = {this.state.color}
-                shadowBlur ={2}
+              //  shadowBlur ={2}
                 strokeWidth ={12}
                 onMouseOver = {this.handleMouseOver}
                 onMouseOut = {this.handleMouseOut}

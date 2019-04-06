@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {WIDTH, HEIGHT} from './constants'
 import { Stage, Layer, Rect, Circle } from 'react-konva';
-import Konva from 'konva';
+// import Konva from 'konva';
 import SideLine from './SideLine'
 import Box from './Box'
 
@@ -12,18 +12,26 @@ export default class BoxCanvas extends Component{
         colorBody: 'grey',
         colorLine: 'brown',
         colorBoxes: 'violet',
-        row: 4,
+        row: 5,
         colomn: 6,
         marginWidth: 0,
-        marginHeight: 0
+        marginHeight: 0,
+        coordsBoxes: [],
+        course: ''
     };
 
     componentWillMount(){ 
         this.setState({
             marginWidth: WIDTH / (this.state.colomn + 2),
-            marginHeight: HEIGHT / (this.state.row + 2)
+            marginHeight: HEIGHT / (this.state.row + 2),
+            course: ( Math.random() > 0,5 ) ? false : true
         })
+        
     } 
+
+    componentDidMount(){
+        this.boxesCoords()
+    }
     
     circleGridCoords = () => {
         var coords = [];
@@ -65,29 +73,56 @@ export default class BoxCanvas extends Component{
         return coords
     }
 
+    
     boxesCoords = () => {
         var coords = []
         for (let i = 0; i < this.state.row ; i++){
             for (let j = 0; j < this.state.colomn; j++){
-                coords.push({
-                    left: this.gridX(j), 
-                    top: this.gridY(i), 
-                    right: this.gridX(j) + this.state.marginWidth, 
-                    bottom: this.gridY(i) + this.state.marginHeight}
-                );       
+                 coords.push({
+                        left: this.gridX(j), 
+                        top: this.gridY(i), 
+                        right: this.gridX(j) + this.state.marginWidth, 
+                        bottom: this.gridY(i) + this.state.marginHeight,
+                        sides: {left: false, top: false, right: false, bottom: false},
+                        color: this.state.colorBoxes
+                    })
+                      
             }
         }
-        return coords
+
+        this.setState({coordsBoxes: coords})
     }
 
     gridX = (i) => this.state.marginWidth * (i + 1) 
 
     gridY = (j) => this.state.marginHeight  * (j + 1)
- 
-    handleClick = () => {
-        this.setState({
-          color: Konva.Util.getRandomColor()
-        });
+
+
+    handleClickLine = (el) => {
+        
+        const coords = this.state.coordsBoxes.map(boxCoords =>{
+            
+            if( el[0] === boxCoords.left && el[1] === boxCoords.top && el[2] === boxCoords.left && el[3]  === boxCoords.bottom ){
+                boxCoords.sides.left = true
+            } else if(el[0] === boxCoords.left && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.top){
+                boxCoords.sides.top = true
+            } else if(el[0] === boxCoords.right && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.bottom ){
+                boxCoords.sides.right = true
+            } else if(el[0] === boxCoords.left && el[1].toFixed(5)  === boxCoords.bottom.toFixed(5) && el[2]  === boxCoords.right && el[3].toFixed(5) === boxCoords.bottom.toFixed(5) ){
+                boxCoords.sides.bottom = true
+            }
+            if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
+                boxCoords.color = 'white'
+                
+
+                
+            }
+        })
+        
+       
+        this.setState({coordsBox: coords, course: !this.state.course })
+        
+        
     }
     
     render(){   
@@ -101,13 +136,16 @@ export default class BoxCanvas extends Component{
         const linesVertical = this.lineVerticalCoords().map((el,index)=>{
             return (
                 // this.drawLine(el.x0, el.y0, el.x1, el.y1, index)
-                <SideLine 
+                <SideLine
+                    key = {index}  
                     x0 ={el.x0}
                     y0 = {el.y0}
                     x1 = {el.x1} 
                     y1 = {el.y1}
-                    index = {index}
+                    index = {index+1}
                     color = {this.state.colorLine}
+                    onClick = {this.handleClickLine}
+                    course = {this.state.course}
                 />
             )
         })
@@ -115,18 +153,21 @@ export default class BoxCanvas extends Component{
         const linesHorisontal = this.lineHorisontalCoords().map((el,index)=>{
             return (
                 // this.drawLine(el.x0, el.y0, el.x1, el.y1, index)
-                <SideLine 
+                <SideLine
+                    key = {index} 
                     x0 ={el.x0}
                     y0 = {el.y0}
                     x1 = {el.x1} 
                     y1 = {el.y1}
-                    index = {index}
+                    index = {new Date()}
                     color = {this.state.colorLine}
+                    onClick = {this.handleClickLine}
+                    course = {this.state.course}
                 />
             )
         })
-        
-        const boxes = this.boxesCoords().map((el, index) =>{
+        console.log(this.state.coordsBoxes)
+        const boxes = this.state.coordsBoxes.map((el, index) =>{
             return (
                 <Box
                     key = {index}
@@ -134,7 +175,11 @@ export default class BoxCanvas extends Component{
                     top={el.top}
                     right={el.right}
                     bottom={el.bottom}
-                    color={this.state.colorBoxes}
+                    color={el.color}
+                    leftSide = {el.sides.left}
+                    topSide = {el.sides.top}
+                    rightSide = {el.sides.right}
+                    bottomSide = {el.sides.bottom}
                 />  
             )
         })
@@ -150,9 +195,10 @@ export default class BoxCanvas extends Component{
                             width={WIDTH+border}
                             height={HEIGHT+border}
                             fill={this.state.colorBody}
-                            shadowBlur={shadow}
+                           // shadowBlur={shadow}
                             stroke={'black'} 
                             strokeWidth={border}
+                            
                             // onClick={this.handleClick}
                         />  
                         {boxes}
@@ -166,87 +212,3 @@ export default class BoxCanvas extends Component{
         )
     }
 }
-
-
-
-
-
-
-
-
-
-// boxes = []
-    // newGame = () => {
-    //     this.playersTurn = Math.random() >= 0.5;
-
-        
-    //     for (let i = 0; i < this.state.row; i++ ){
-    //         this.boxes[i] = []
-    //         for(let j = 0; j < this.state.colomn; j++){
-    //             this.boxes[i][j] = new Box(this.gridX(j), this.gridY(i), this.state.marginWidth, this.state.marginHeight);
-    //         }
-    //     }
-    // }
-
-    // drawBoxes = () => {
-    //     for (let row of this.boxes){
-    //         for(let box of row){
-    //             box.drawSides();
-    //             box.drawFill();
-    //         }
-    //     }
-    // }
-
-    // highlightSide = (x, y) => {
-
-    //     // clear previous highlighting
-    //     for (let row of this.boxes) {
-    //         for (let square of row) {
-    //             square.highlight = null;
-    //         }
-    //     }
-
-    //     // check each cell
-    //     let rows = this.boxes.length;
-    //     let cols = this.boxes[0].length;
-    //     var currentCells = [];
-    //     OUTER: for (let i = 0; i < rows; i++) {
-    //         for (let j = 0; j < cols; j++) {
-    //             if (this.boxes[i][j].contains(x, y)) {
-
-    //                 // highlight current
-    //                 let side = this.boxes[i][j].highlightSide(x, y);
-    //                 if (side != null) {
-    //                     currentCells.push({row: i, col: j});
-    //                 }
-
-    //                 // determine neighbour
-    //                 let row = i, col = j, highlight, neighbour = true;
-    //                 if (side == Side.LEFT && j > 0) {
-    //                     col = j - 1;
-    //                     highlight = Side.RIGHT;
-    //                 } else if (side == Side.RIGHT && j < cols - 1) {
-    //                     col = j + 1;
-    //                     highlight = Side.LEFT;
-    //                 } else if (side == Side.TOP && i > 0) {
-    //                     row = i - 1;
-    //                     highlight = Side.BOT;
-    //                 } else if (side == Side.BOT && i < rows - 1) {
-    //                     row = i + 1;
-    //                     highlight = Side.TOP;
-    //                 } else {
-    //                     neighbour = false;
-    //                 }
-
-    //                 // highlight neighbour
-    //                 if (neighbour) {
-    //                     this.boxes[row][col].highlight = highlight;
-    //                     currentCells.push({row: row, col: col});
-    //                 }
-
-    //                 // no need to continue
-    //                 break OUTER;
-    //             }
-    //         }
-    //     }
-    // }
