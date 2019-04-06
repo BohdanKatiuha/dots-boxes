@@ -43,8 +43,8 @@ export default class Box extends Component{
     }
 
     render(){
-        const {left, top, right, bottom, index, topSide} = this.props
-        console.log(topSide)
+        const {left, top, right, bottom, index} = this.props
+        // console.log(topSide)
         return(
             <Rect
                 key = {index}

@@ -97,26 +97,38 @@ export default class BoxCanvas extends Component{
 
     gridY = (j) => this.state.marginHeight  * (j + 1)
 
+    
 
     handleClickLine = (el) => {
-        
+        console.log(this.state.course)
         const coords = this.state.coordsBoxes.map(boxCoords =>{
-            
+            console.log(boxCoords)
             if( el[0] === boxCoords.left && el[1] === boxCoords.top && el[2] === boxCoords.left && el[3]  === boxCoords.bottom ){
                 boxCoords.sides.left = true
+                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
+                    boxCoords.color = 'white'
+                    this.setState({ course: !this.state.course })
+                }
             } else if(el[0] === boxCoords.left && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.top){
                 boxCoords.sides.top = true
+                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
+                    boxCoords.color = 'white'
+                    this.setState({ course: !this.state.course })
+                }
             } else if(el[0] === boxCoords.right && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.bottom ){
                 boxCoords.sides.right = true
+                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
+                    boxCoords.color = 'white'
+                    this.setState({ course: !this.state.course })
+                }
             } else if(el[0] === boxCoords.left && el[1].toFixed(5)  === boxCoords.bottom.toFixed(5) && el[2]  === boxCoords.right && el[3].toFixed(5) === boxCoords.bottom.toFixed(5) ){
                 boxCoords.sides.bottom = true
+                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
+                    boxCoords.color = 'white'
+                    this.setState({ course: !this.state.course })
+                }
             }
-            if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                boxCoords.color = 'white'
-                
-
-                
-            }
+            
         })
         
        
@@ -166,7 +178,7 @@ export default class BoxCanvas extends Component{
                 />
             )
         })
-        console.log(this.state.coordsBoxes)
+        // console.log(this.state.coordsBoxes)
         const boxes = this.state.coordsBoxes.map((el, index) =>{
             return (
                 <Box
@@ -183,7 +195,7 @@ export default class BoxCanvas extends Component{
                 />  
             )
         })
-       
+        // console.log(this.state.course)
         return(
             <div>
                  

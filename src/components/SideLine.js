@@ -17,7 +17,6 @@ export default class SideLine extends Component{
         })
     }
 
-    
 
     handleMouseOver = () => {
         if (!this.state.fixed)  
