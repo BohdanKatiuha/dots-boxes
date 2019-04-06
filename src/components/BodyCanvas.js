@@ -9,15 +9,18 @@ import Box from './Box'
 export default class BoxCanvas extends Component{
     
     state = {
-        colorBody: 'grey',
-        colorLine: 'brown',
-        colorBoxes: 'violet',
-        row: 5,
-        colomn: 6,
+        colorBody: '#002266',
+        colorLine: '#0099ff',
+        colorBoxes: '#e6f5ff',
+        colorCircle: '#c2c2d6',
+        row: 3,
+        colomn: 4,
         marginWidth: 0,
         marginHeight: 0,
         coordsBoxes: [],
-        course: ''
+        course: '',
+        player1CounterFillBox: 0,
+        player2CounterFillBox: 0
     };
 
     componentWillMount(){ 
@@ -101,53 +104,93 @@ export default class BoxCanvas extends Component{
 
     handleClickLine = (el) => {
         console.log(this.state.course)
+        var course = this.state.course
+        var checkCourse = true
         const coords = this.state.coordsBoxes.map(boxCoords =>{
             console.log(boxCoords)
+            
             if( el[0] === boxCoords.left && el[1] === boxCoords.top && el[2] === boxCoords.left && el[3]  === boxCoords.bottom ){
                 boxCoords.sides.left = true
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = 'white'
-                    this.setState({ course: !this.state.course })
+                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
+                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    // this.setState({ course: !this.state.course })
+                   
+                    course = (checkCourse) ? !course : course
+                    checkCourse = false
+
                 }
             } else if(el[0] === boxCoords.left && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.top){
                 boxCoords.sides.top = true
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = 'white'
-                    this.setState({ course: !this.state.course })
+                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
+                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    // this.setState({ course: !this.state.course })
+                    
+                    course = (checkCourse) ? !course : course
+                    checkCourse = false
                 }
             } else if(el[0] === boxCoords.right && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.bottom ){
                 boxCoords.sides.right = true
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = 'white'
-                    this.setState({ course: !this.state.course })
+                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
+                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    // this.setState({ course: !this.state.course })
+                    
+                    course = (checkCourse) ? !course : course
+                    checkCourse = false
                 }
             } else if(el[0] === boxCoords.left && el[1].toFixed(5)  === boxCoords.bottom.toFixed(5) && el[2]  === boxCoords.right && el[3].toFixed(5) === boxCoords.bottom.toFixed(5) ){
                 boxCoords.sides.bottom = true
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = 'white'
-                    this.setState({ course: !this.state.course })
+                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
+                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    // this.setState({ course: !this.state.course })
+                    
+                    course = (checkCourse) ? !course : course
+                    checkCourse = false
                 }
             }
             
         })
         
        
-        this.setState({coordsBox: coords, course: !this.state.course })
+        this.setState({coordsBox: coords, course: !course })
         
+        
+    }
+
+    winner = () =>{
+            
+        if(this.state.player1CounterFillBox + this.state.player2CounterFillBox === this.state.colomn * this.state.row){
+            if(this.state.player1CounterFillBox > this.state.player2CounterFillBox){
+                return(
+                    <div> playes1 wins game</div>
+                )
+            }else if (this.state.player1CounterFillBox < this.state.player2CounterFillBox){
+                return(
+                    <div> playes2 wins game</div>
+                )
+            }else{
+                return(
+                    <div> draw game</div>
+                )
+            }
+        }
         
     }
     
     render(){   
-        const border = 5;
-        const shadow = 5;
-        // this.newGame();
+        const border = 10;
+        const shadow = 10;
+       
         const circles = this.circleGridCoords().map((el,index)=>{
-            return <Circle key={index} x={el.x} y={el.y} radius={10} fill="red" />
+            return <Circle key={index} x={el.x} y={el.y} radius={10} fill={this.state.colorCircle} />
         })
-        // const lines = this.drawLine(20,20,100,20)
+       
         const linesVertical = this.lineVerticalCoords().map((el,index)=>{
             return (
-                // this.drawLine(el.x0, el.y0, el.x1, el.y1, index)
+                
                 <SideLine
                     key = {index}  
                     x0 ={el.x0}
@@ -164,14 +207,14 @@ export default class BoxCanvas extends Component{
 
         const linesHorisontal = this.lineHorisontalCoords().map((el,index)=>{
             return (
-                // this.drawLine(el.x0, el.y0, el.x1, el.y1, index)
+                
                 <SideLine
                     key = {index} 
                     x0 ={el.x0}
                     y0 = {el.y0}
                     x1 = {el.x1} 
                     y1 = {el.y1}
-                    index = {new Date()}
+                    
                     color = {this.state.colorLine}
                     onClick = {this.handleClickLine}
                     course = {this.state.course}
@@ -195,10 +238,20 @@ export default class BoxCanvas extends Component{
                 />  
             )
         })
-        // console.log(this.state.course)
+
+
+
+        const player1 = <div> <h1>player 1</h1> fill boxes: {this.state.player1CounterFillBox} </div>
+        const player2 = <div> <h1>player 2</h1> fill boxes: {this.state.player2CounterFillBox} </div>
+        const winner = this.winner()
+
         return(
             <div>
-                 
+                 <div>
+                     {player1}
+                     {player2}
+                     {winner}
+                 </div>
                 <Stage onMouseMove={this.highlightSide} width={WIDTH+border*2+shadow} height={HEIGHT+border*2+shadow}>
                     <Layer ref= 'layer'> 
                         <Rect
@@ -207,11 +260,11 @@ export default class BoxCanvas extends Component{
                             width={WIDTH+border}
                             height={HEIGHT+border}
                             fill={this.state.colorBody}
-                           // shadowBlur={shadow}
-                            stroke={'black'} 
+                            shadowBlur={shadow}
+                            stroke={'#0099ff'} 
                             strokeWidth={border}
                             
-                            // onClick={this.handleClick}
+                            
                         />  
                         {boxes}
                         {linesVertical}

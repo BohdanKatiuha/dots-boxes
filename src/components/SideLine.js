@@ -41,7 +41,7 @@ export default class SideLine extends Component{
     handleClick = (el) => {
         // console.log(el.currentTarget.attrs.points)
         if (!this.state.fixed){
-            this.setState ({color: this.props.course ? 'yellow' : 'green', fixed: true})
+            this.setState ({color: this.props.course ? '#009900' : '#990099', fixed: true})
             this.props.onClick(el.currentTarget.attrs.points)
         }
     }
