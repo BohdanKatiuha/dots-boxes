@@ -17,9 +17,9 @@ export default class BoxCanvas extends Component{
         colomn: 4,
         marginWidth: 0,
         marginHeight: 0,
-        coordsBoxes: [],
-        course: '',
-        player1CounterFillBox: 0,
+        coordsBoxes: [], // 
+        playerMove: '', // who should move 
+        player1CounterFillBox: 0, 
         player2CounterFillBox: 0
     };
 
@@ -27,7 +27,7 @@ export default class BoxCanvas extends Component{
         this.setState({
             marginWidth: WIDTH / (this.state.colomn + 2),
             marginHeight: HEIGHT / (this.state.row + 2),
-            course: ( Math.random() > 0,5 ) ? false : true
+            playerMove: ( Math.random() > 0,5 ) ? false : true
         })
         
     } 
@@ -35,22 +35,26 @@ export default class BoxCanvas extends Component{
     componentDidMount(){
         this.boxesCoords()
     }
+
+    gridX = (i) => this.state.marginWidth * (i + 1) 
+
+    gridY = (j) => this.state.marginHeight  * (j + 1)
     
     circleGridCoords = () => {
-        var coords = [];
+        var circleCoords = [];
         for (let i = 0; i < this.state.row + 1; i++){
             for (let j = 0; j < this.state.colomn + 1; j++){
-                coords.push({x: this.gridX(j),y: this.gridY(i)});       
+                circleCoords.push({x: this.gridX(j),y: this.gridY(i)});       
             }
         }
-        return coords
+        return circleCoords
     }
 
     lineVerticalCoords = () => {
-        var coords = [];
+        var verticalLineCoords = [];
         for (let i = 0; i < this.state.row + 1; i++){
             for (let j = 0; j < this.state.colomn; j++){
-                coords.push({
+                verticalLineCoords.push({
                     x0: this.gridX(j), 
                     y0: this.gridY(i), 
                     x1: this.gridX(j) + this.state.marginWidth, 
@@ -58,14 +62,14 @@ export default class BoxCanvas extends Component{
                 );       
             }
         }
-        return coords
+        return verticalLineCoords
     }
 
-    lineHorisontalCoords = () => {
-        var coords = [];
+    lineHorizontalCoords = () => {
+        var horizontalLineCoords = [];
         for (let i = 0; i < this.state.row ; i++){
             for (let j = 0; j < this.state.colomn +1; j++){
-                coords.push({
+                horizontalLineCoords.push({
                     x0: this.gridX(j), 
                     y0: this.gridY(i), 
                     x1: this.gridX(j), 
@@ -73,15 +77,15 @@ export default class BoxCanvas extends Component{
                 );       
             }
         }
-        return coords
+        return horizontalLineCoords
     }
 
     
     boxesCoords = () => {
-        var coords = []
+        var coordsBoxes = []
         for (let i = 0; i < this.state.row ; i++){
             for (let j = 0; j < this.state.colomn; j++){
-                 coords.push({
+                coordsBoxes.push({
                         left: this.gridX(j), 
                         top: this.gridY(i), 
                         right: this.gridX(j) + this.state.marginWidth, 
@@ -93,75 +97,57 @@ export default class BoxCanvas extends Component{
             }
         }
 
-        this.setState({coordsBoxes: coords})
+        this.setState({coordsBoxes: coordsBoxes})
     }
 
-    gridX = (i) => this.state.marginWidth * (i + 1) 
-
-    gridY = (j) => this.state.marginHeight  * (j + 1)
-
-    
-
     handleClickLine = (el) => {
-        console.log(this.state.course)
-        var course = this.state.course
-        var checkCourse = true
-        const coords = this.state.coordsBoxes.map(boxCoords =>{
+        // console.log(this.state.course)
+        let playerMove = this.state.playerMove
+        let checkPlayerMove = true
+        const coords = this.state.coordsBoxes.forEach(boxCoords =>{
             console.log(boxCoords)
             
             if( el[0] === boxCoords.left && el[1] === boxCoords.top && el[2] === boxCoords.left && el[3]  === boxCoords.bottom ){
                 boxCoords.sides.left = true
+                
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
-                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    // this.setState({ course: !this.state.course })
-                   
-                    course = (checkCourse) ? !course : course
-                    checkCourse = false
+                    boxCoords.color = this.state.playerMove ? '#33ff33' : '#ff33ff'
+                    this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
+                    checkPlayerMove = false
 
                 }
             } else if(el[0] === boxCoords.left && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.top){
                 boxCoords.sides.top = true
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
-                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    // this.setState({ course: !this.state.course })
-                    
-                    course = (checkCourse) ? !course : course
-                    checkCourse = false
+                    boxCoords.color = this.state.playerMove ? '#33ff33' : '#ff33ff'
+                    this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
+                    checkPlayerMove = false
                 }
             } else if(el[0] === boxCoords.right && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.bottom ){
                 boxCoords.sides.right = true
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
-                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    // this.setState({ course: !this.state.course })
-                    
-                    course = (checkCourse) ? !course : course
-                    checkCourse = false
+                    boxCoords.color = this.state.playerMove ? '#33ff33' : '#ff33ff'
+                    this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
+                    checkPlayerMove = false
                 }
             } else if(el[0] === boxCoords.left && el[1].toFixed(5)  === boxCoords.bottom.toFixed(5) && el[2]  === boxCoords.right && el[3].toFixed(5) === boxCoords.bottom.toFixed(5) ){
                 boxCoords.sides.bottom = true
                 if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.course ? '#33ff33' : '#ff33ff'
-                    this.state.course ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    // this.setState({ course: !this.state.course })
-                    
-                    course = (checkCourse) ? !course : course
-                    checkCourse = false
+                    boxCoords.color = this.state.playerMove ? '#33ff33' : '#ff33ff'
+                    this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
+                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
+                    checkPlayerMove = false
                 }
-            }
-            
+            } 
         })
         
-       
-        this.setState({coordsBox: coords, course: !course })
-        
-        
+        return this.setState({coordsBox: coords, playerMove: !playerMove })
     }
 
-    winner = () =>{
-            
+    whoIsWinner = () =>{
         if(this.state.player1CounterFillBox + this.state.player2CounterFillBox === this.state.colomn * this.state.row){
             if(this.state.player1CounterFillBox > this.state.player2CounterFillBox){
                 return(
@@ -177,7 +163,6 @@ export default class BoxCanvas extends Component{
                 )
             }
         }
-        
     }
     
     render(){   
@@ -197,15 +182,15 @@ export default class BoxCanvas extends Component{
                     y0 = {el.y0}
                     x1 = {el.x1} 
                     y1 = {el.y1}
-                    index = {index+1}
+                    // index = {index}
                     color = {this.state.colorLine}
                     onClick = {this.handleClickLine}
-                    course = {this.state.course}
+                    playerMove = {this.state.playerMove}
                 />
             )
         })
 
-        const linesHorisontal = this.lineHorisontalCoords().map((el,index)=>{
+        const linesHorizontal = this.lineHorizontalCoords().map((el,index)=>{
             return (
                 
                 <SideLine
@@ -214,10 +199,9 @@ export default class BoxCanvas extends Component{
                     y0 = {el.y0}
                     x1 = {el.x1} 
                     y1 = {el.y1}
-                    
                     color = {this.state.colorLine}
                     onClick = {this.handleClickLine}
-                    course = {this.state.course}
+                    playerMove = {this.state.playerMove}
                 />
             )
         })
@@ -231,19 +215,17 @@ export default class BoxCanvas extends Component{
                     right={el.right}
                     bottom={el.bottom}
                     color={el.color}
-                    leftSide = {el.sides.left}
-                    topSide = {el.sides.top}
-                    rightSide = {el.sides.right}
-                    bottomSide = {el.sides.bottom}
+                    // leftSide = {el.sides.left}
+                    // topSide = {el.sides.top}
+                    // rightSide = {el.sides.right}
+                    // bottomSide = {el.sides.bottom}
                 />  
             )
         })
 
-
-
         const player1 = <div> <h1>player 1</h1> fill boxes: {this.state.player1CounterFillBox} </div>
         const player2 = <div> <h1>player 2</h1> fill boxes: {this.state.player2CounterFillBox} </div>
-        const winner = this.winner()
+        const winner = this.whoIsWinner()
 
         return(
             <div>
@@ -262,13 +244,11 @@ export default class BoxCanvas extends Component{
                             fill={this.state.colorBody}
                             shadowBlur={shadow}
                             stroke={'#0099ff'} 
-                            strokeWidth={border}
-                            
-                            
+                            strokeWidth={border} 
                         />  
                         {boxes}
                         {linesVertical}
-                        {linesHorisontal}
+                        {linesHorizontal}
                         {circles}
   
                     </Layer>
