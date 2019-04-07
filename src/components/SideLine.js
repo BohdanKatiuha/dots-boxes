@@ -14,10 +14,24 @@ export default class SideLine extends Component{
         })
     }
 
+    componentWillReceiveProps(nextProps){
+        // console.log(this.props.reset)
+        if(nextProps.reset !== this.props.reset){
+            this.resetColor();
+        }
+    }
+
+    resetColor = () =>{
+        this.setState({
+            color: this.props.color,
+            fixed: false
+        })
+    }
+
     handleMouseOver = () => {
         if (!this.state.fixed)  
             return this.setState({
-                color: 'blue'
+                color: this.props.playerMove ? '#80ff80' : '#ff80ff'
             })
     }
 
@@ -33,6 +47,7 @@ export default class SideLine extends Component{
         if (!this.state.fixed){
             this.setState ({color: this.props.playerMove ? '#009900' : '#990099', fixed: true})
             this.props.onClick(el.currentTarget.attrs.points)
+        
         }
     }
 
