@@ -4,25 +4,44 @@ import { Stage, Layer, Rect, Circle } from 'react-konva';
 import SideLine from './SideLine'
 import Box from './Box'
 import './BodyCanvas.css'
+// import {ReactModal} from 'react-modal'
+import Modal from 'react-responsive-modal';
 
 
-export default class BoxCanvas extends Component{
+export default class BodyCanvas extends Component{
     
+
     state = {
         colorBody: '#e6f5ff',
         colorLine: '#fffff6',
         colorBoxes: '#e6f5ff',
         colorCircle: '#0099ff',
-        row: 5,
-        colomn: 6,
+        row: 2,
+        colomn: 2,
         marginWidth: 0,
         marginHeight: 0,
         coordsBoxes: [], // 
         playerMove: '', // who should move 
         player1CounterFillBox: 0, 
         player2CounterFillBox: 0,
-        reset : false
+        reset : false,
+        showModalSettings: false,
+        showModalTutorial: false,
+        showModalWinner: true
     };
+    
+
+    handleOpenModalSettings = () => this.setState({ showModalSettings: true });
+      
+    handleCloseModalSettings = () => this.setState({ showModalSettings: false });
+
+    handleOpenModalTutorial = () => this.setState({ showModalTutorial: true });
+      
+    handleCloseModalTutorial = () => this.setState({ showModalTutorial: false });
+
+    // handleOpenModalWinner = () => this.setState({ showModalWinner: true });
+      
+    handleCloseModalWinner = () => this.setState({ showModalWinner: false });
 
     componentWillMount(){ 
         this.setState({
@@ -41,7 +60,8 @@ export default class BoxCanvas extends Component{
     componentDidUpdate(prevProps, prevState){
         if(prevState.reset !== this.state.reset){
             this.setState({
-                reset: false
+                reset: false,
+                showModalWinner: true
             })
         } 
     }
@@ -160,17 +180,25 @@ export default class BoxCanvas extends Component{
 
     whoIsWinner = () =>{
         if(this.state.player1CounterFillBox + this.state.player2CounterFillBox === this.state.colomn * this.state.row){
+            // this.setState({showModalWinner: true})
             if(this.state.player1CounterFillBox > this.state.player2CounterFillBox){
                 return(
-                    <div className='winner1'> playes1 wins game</div>
+                    <Modal open={this.state.showModalWinner} onClose={this.handleCloseModalWinner} center>
+                        <h2 className='winner1'> players1 wins game</h2>
+                    </Modal>
                 )
             }else if (this.state.player1CounterFillBox < this.state.player2CounterFillBox){
                 return(
-                    <div className='winner2'> playes2 wins game</div>
+                    <Modal open={this.state.showModalWinner} onClose={this.handleCloseModalWinner} center>
+                       <h2 className='winner2'> players2 wins game</h2>
+                    </Modal>
                 )
             }else{
                 return(
-                    <div className='draw'> draw game</div>
+                    <Modal open={this.state.showModalWinner} onClose={this.handleCloseModalWinner} center>
+                           <h2 className='draw'> draw game</h2>
+                    </Modal>
+                    
                 )
             }
         }
@@ -188,10 +216,6 @@ export default class BoxCanvas extends Component{
            
         })
     }
-
-    // resetColor = () => {
-    //     this.state.color = '#0099ff'
-    // }
     
     render(){   
         const border = 10;
@@ -256,21 +280,37 @@ export default class BoxCanvas extends Component{
         // console.log(this.state.reset)
         return(
             <div className='app'>
-                 <div className='gameInfo'>
+                <div className='tools'>
+                    <div >
+                        <button onClick={this.handleOpenModalSettings} className='settings'>settings</button>
+                        <Modal open={this.state.showModalSettings} onClose={this.handleCloseModalSettings} center>
+                           <h2>Settings</h2>
+                           
+                        </Modal>
+                    </div>
+                    <div>
+                        <button onClick = {this.reset } className='reset'>reset</button>
+                    </div>
+                    <div>
+                        <button onClick={this.handleOpenModalTutorial} className='tutorial'>tutorial</button>
+                        <Modal open={this.state.showModalTutorial} onClose={this.handleCloseModalTutorial} center>
+                           <h2>Tutorial</h2>
+                        </Modal>
+                    </div>
+                </div>
+
+                <div className='gameInfo'>
                     <div className='player1' > 
                         <div style = { this.state.playerMove ? {borderBottom: '2px solid #33ff33'} : {}} > player 1  </div> 
                         <div className='score'>{this.state.player1CounterFillBox} </div>
                     </div>
 
-                     <div>
-                         <button onClick = {this.reset } className='reset'>reset</button>
-                     </div>
-
-                     <div className='player2' >  
+                        <div className='player2' >  
                         <div className='score'>{this.state.player2CounterFillBox} </div> 
                         <div style = { this.state.playerMove ? {} : {borderBottom: '2px solid #ff33ff'}}> player 2 </div> 
                     </div>
-                 </div>
+                </div>
+                
                  {winner}
                 <div className='canvas'>
                     <Stage  onMouseMove={this.highlightSide} width={WIDTH+border*2+shadow} height={HEIGHT+border*2+shadow}>
