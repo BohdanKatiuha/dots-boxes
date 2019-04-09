@@ -34,3 +34,44 @@
     flex-direction: column;
     align-items: center;
 }
+
+.btn {
+    padding: 5px;
+    margin: 5px;
+    color: white;
+    border: 1px solid rgb(33, 147, 90);
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: rgb(30, 117, 74);
+}
+
+.btn:hover {
+    background: rgb(53, 167, 110);
+}
+
+.btn:active {
+    background: rgb(33, 147, 90);
+    /* box-shadow: 0 3px rgb(33, 147, 90) inset; */
+}
+
+input {
+    all: unset;
+    -moz-appearance: textfield;
+    width: 2em;
+    text-align: center;
+}
+
+.settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.settingColomn,
+.settingRow {
+    margin: 10px;
+    width: 150px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
