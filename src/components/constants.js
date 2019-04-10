@@ -1,10 +1,4 @@
 
-export const WIDTH = 700;
-export const HEIGHT = 600;
-
-export const ROW = 5;
-export const COLOMN = 5;
-
 export const COLORS = {
     bodyDefault: '#e6f5ff',
     boxDefault: '#e6f5ff',

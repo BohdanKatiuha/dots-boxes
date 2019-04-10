@@ -54,7 +54,7 @@ export default class SideLine extends Component{
             <Line
                 points ={[x0, y0, x1, y1]}
                 stroke = {this.state.color}
-                strokeWidth ={12}
+                strokeWidth ={18}
                 onMouseOver = {this.handleMouseOver}
                 onMouseOut = {this.handleMouseOut}
                 onClick = {this.handleClick}

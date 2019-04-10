@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {WIDTH, HEIGHT, COLORS} from './constants'
+import { COLORS} from './constants'
 import { Stage, Layer, Rect, Circle } from 'react-konva';
 import SideLine from './SideLine'
 import Box from './Box'
@@ -10,6 +10,9 @@ import Modal from 'react-responsive-modal';
 export default class BodyCanvas extends Component{
     
     state = {
+        width: 0,
+        height: 0,
+
         colorBody: COLORS.bodyDefault,
         colorLine: COLORS.lineDefault,
         colorBoxes: COLORS.boxDefault,
@@ -42,28 +45,35 @@ export default class BodyCanvas extends Component{
     // set primary states
     componentWillMount(){ 
         this.setState({
-            marginWidth: WIDTH / (this.state.colomn + 2),
-            marginHeight: HEIGHT / (this.state.row + 2),
+            width: window.innerHeight ,
+            height: window.innerHeight - 130,
+            marginWidth:window.innerHeight  / (this.state.colomn + 2),  // distance width between dots
+            marginHeight: ( window.innerHeight - 130 ) / (this.state.row + 2),  // distance height between dots
         })
     } 
 
     componentDidMount(){
-        this.boxesCoords() 
+        this.boxesCoords()
+       
     }
+
+
 
     // update states for reset and resize
     componentDidUpdate(prevProps, prevState){
-        if(prevState.colomn !== this.state.colomn && prevState.row !== this.state.row){
-            this.reset()
-        }
+        
+        // if(prevState.colomn !== this.state.colomn && prevState.row !== this.state.row){
+        //     this.reset()
+        // }
         if(prevState.reset !== this.state.reset){
             this.reset()
             this.setState({
-                marginWidth: (WIDTH / (this.state.colomn + 2)), // distance width between dots
-                marginHeight: (HEIGHT / (this.state.row + 2)), // distance height between dots
+                marginWidth:  this.state.width  / (this.state.colomn + 2),  // distance width between dots
+                marginHeight: this.state.height / (this.state.row + 2),  // distance height between dots
                 reset: false
             })
-        }
+        } 
+        
           
     }
 
@@ -188,7 +198,7 @@ export default class BodyCanvas extends Component{
         }
     }
 
-    reset = () =>{
+    reset = () =>{ // back to primary state
         this.boxesCoords()
         this.setState({
             playerMove: Math.random() < 0.5, 
@@ -199,14 +209,14 @@ export default class BodyCanvas extends Component{
         })
     }
 
-    changeSizeRowAndColomn = () => {
+    changeSizeRowAndColomn = () => { // apply change
         this.setState({
-            colomn: +this.refs.colomn.value,
+            colomn: +this.refs.colomn.value, 
             row: +this.refs.row.value,
-            marginWidth: WIDTH / (+this.refs.colomn.value + 2),
-            marginHeight: HEIGHT / (+this.refs.row.value + 2),
-            showModalSettings: false,
-            reset: true
+            marginWidth: window.innerWidth / (this.state.colomn + 2),  // distance width between dots
+            marginHeight: window.innerHeight / (this.state.row + 2),  // distance height between dots
+            showModalSettings: false, // close modal window
+            reset: true 
         })  
     }
 
@@ -223,7 +233,7 @@ export default class BodyCanvas extends Component{
         const shadow = 10;
        
         const circles = this.circleGridCoords().map((el,index)=>{
-            return <Circle key={index} x={el.x} y={el.y} radius={10} fill={this.state.colorCircle} />
+            return <Circle key={index} x={el.x} y={el.y} radius={12} fill={this.state.colorCircle} />
         })
        
         const lines = this.linesCoords().map((el,index)=>{
@@ -306,25 +316,35 @@ export default class BodyCanvas extends Component{
 
                 <div className='gameInfo'>
                     <div className='player1' > 
-                        <div style = { this.state.playerMove ? {borderBottom: `2px solid ${COLORS.boxPlayer1}`} : {}} > player 1 </div> 
+                        <div 
+                            className='playerName' 
+                            style = { this.state.playerMove ? {border: `2px solid ${COLORS.boxPlayer1}`} : {border: `2px solid rgba(0,0,0,0)`}} 
+                        > 
+                            player 1 
+                        </div> 
                         <div className='score'>{this.state.player1CounterFillBox} </div>
                     </div>
 
                         <div className='player2' >  
                         <div className='score'>{this.state.player2CounterFillBox} </div> 
-                        <div style = { this.state.playerMove ? {} : {borderBottom: `2px solid ${COLORS.boxPlayer2}`}}> player 2 </div> 
+                        <div 
+                            className='playerName' 
+                            style = { this.state.playerMove ? {border: `2px solid rgba(0,0,0,0)`} : {border: `2px solid ${COLORS.boxPlayer2}`}}
+                        >
+                            player 2 
+                        </div> 
                     </div>
                 </div>
                 
                 {winner}
                 <div className='canvas'>
-                    <Stage  onMouseMove={this.highlightSide} width={WIDTH+border*2} height={HEIGHT+border*2}>
+                    <Stage  onMouseMove={this.highlightSide} width={this.state.width+border*2} height={this.state.height+border*2}>
                         <Layer ref= 'layer'> 
                             <Rect
                                 x={border}
                                 y={border}
-                                width={WIDTH-border*2}
-                                height={HEIGHT-border*2}
+                                width={this.state.width-border*2}
+                                height={this.state.height-border*2}
                                 fill={this.state.colorBody}
                                 shadowBlur={shadow}
                                 stroke={COLORS.borderBody} 
