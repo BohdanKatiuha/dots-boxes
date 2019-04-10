@@ -14,7 +14,6 @@ export default class SideLine extends Component{
     }
 
     componentWillReceiveProps(nextProps){
-        // console.log(this.props.reset)
         if(nextProps.reset !== this.props.reset){
             this.resetColor();
         }

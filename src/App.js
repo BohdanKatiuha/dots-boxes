@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import './App.css';
 import BodyCanvas from './components/BodyCanvas'
 class App extends Component {
   render() {

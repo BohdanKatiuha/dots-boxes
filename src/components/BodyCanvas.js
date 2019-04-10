@@ -4,22 +4,11 @@ import { Stage, Layer, Rect, Circle } from 'react-konva';
 import SideLine from './SideLine'
 import Box from './Box'
 import './BodyCanvas.css'
-// import {ReactModal} from 'react-modal'
 import Modal from 'react-responsive-modal';
 
-// const constants = {
-//     WIDTH: 700,
-//     HEIGHT: 600,
-//     COLORS: {
-//         bodyDefault: '#e6f5ff',
-//         lineDefault: '#fffff6',
-//         circleDefault: '#0099ff'
-//     }
-// }
 
 export default class BodyCanvas extends Component{
     
-
     state = {
         colorBody: COLORS.bodyDefault,
         colorLine: COLORS.lineDefault,
@@ -39,7 +28,7 @@ export default class BodyCanvas extends Component{
         showModalWinner: true
     };
     
-
+    // handlers for modal windows
     handleOpenModalSettings = () => this.setState({ showModalSettings: true });
       
     handleCloseModalSettings = () => this.setState({ showModalSettings: false });
@@ -50,38 +39,39 @@ export default class BodyCanvas extends Component{
       
     handleCloseModalWinner = () => this.setState({ showModalWinner: false });
 
+    // set primary states
     componentWillMount(){ 
         this.setState({
             marginWidth: WIDTH / (this.state.colomn + 2),
             marginHeight: HEIGHT / (this.state.row + 2),
         })
-        
     } 
 
     componentDidMount(){
-        this.boxesCoords()
-        
+        this.boxesCoords() 
     }
 
+    // update states for reset and resize
     componentDidUpdate(prevProps, prevState){
         if(prevState.colomn !== this.state.colomn && prevState.row !== this.state.row){
             this.reset()
         }
         if(prevState.reset !== this.state.reset){
+            this.reset()
             this.setState({
-                marginWidth: WIDTH / (this.state.colomn + 2),
-                marginHeight: HEIGHT / (this.state.row + 2),
-                reset: false,
-                showModalWinner: true
+                marginWidth: (WIDTH / (this.state.colomn + 2)), // distance width between dots
+                marginHeight: (HEIGHT / (this.state.row + 2)), // distance height between dots
+                reset: false
             })
-        }        
+        }
+          
     }
 
     gridX = (i) => this.state.marginWidth * (i + 1) 
 
     gridY = (j) => this.state.marginHeight  * (j + 1)
     
-    circleGridCoords = () => {
+    circleGridCoords = () => { // calculate circle coordinates
         var circleCoords = [];
         for (let i = 0; i < this.state.row + 1; i++){
             for (let j = 0; j < this.state.colomn + 1; j++){
@@ -91,14 +81,14 @@ export default class BodyCanvas extends Component{
         return circleCoords
     }
 
-    linesCoords = () => {
+    linesCoords = () => { // calculate line coordinates
         var linesCoords = [];
         for (let i = 0; i < this.state.row + 1; i++){
             for (let j = 0; j < this.state.colomn; j++){
                 linesCoords.push({
                     x0: this.gridX(j), 
                     y0: this.gridY(i), 
-                    x1: this.gridX(j) + this.state.marginWidth, 
+                    x1: this.gridX(j +1 ), 
                     y1: this.gridY(i)}
                 );       
             }
@@ -109,101 +99,88 @@ export default class BodyCanvas extends Component{
                     x0: this.gridX(j), 
                     y0: this.gridY(i), 
                     x1: this.gridX(j), 
-                    y1: this.gridY(i) + this.state.marginHeight,
+                    y1: this.gridY(i + 1),
                     }
                 );       
             }
         }
         return linesCoords
     }
-
-
-    
-    boxesCoords = () => {
+ 
+    boxesCoords = () => { // calculate boxes coordinates
         var coordsBoxes = []
-        console.log(this.state.colomn)
         for (let i = 0; i < this.state.row ; i++){
             for (let j = 0; j < this.state.colomn; j++){
                 coordsBoxes.push({
                     left: this.gridX(j), 
                     top: this.gridY(i), 
-                    right: this.gridX(j) + this.state.marginWidth, 
-                    bottom: this.gridY(i) + this.state.marginHeight,
-                    sides: {left: false, top: false, right: false, bottom: false},
+                    right: this.gridX(j + 1), 
+                    bottom: this.gridY(i + 1) ,
+                    sides: {left: false, top: false, right: false, bottom: false}, // for check lateral sides
                     color: this.state.colorBoxes
                 })
                       
             }
         }
-
         this.setState({coordsBoxes: coordsBoxes})
     }
 
-    handleClickLine = (el) => {
-        // console.log(this.state.course)
-        let playerMove = this.state.playerMove
-        let checkPlayerMove = true
-        const coords = this.state.coordsBoxes.forEach(boxCoords =>{
-            // console.log(boxCoords)
-            
-            if( el[0] === boxCoords.left && el[1] === boxCoords.top && el[2] === boxCoords.left && el[3]  === boxCoords.bottom ){
-                boxCoords.sides.left = true
-                
-                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.playerMove ? COLORS.boxPlayer1 : COLORS.boxPlayer2
-                    !this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
-                    checkPlayerMove = false
+    checkAllSideWereCkicked = (boxCoords, playerMove, checkPlayerMove) =>{
+        if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){  // all sides were clicked
+            boxCoords.color = this.state.playerMove ? COLORS.boxPlayer1 : COLORS.boxPlayer2 // select color for fill box
+            // add counder score
+            this.state.playerMove ? this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1}) : this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1})
+            playerMove = (checkPlayerMove) ? !playerMove : playerMove // change player`s move
+            checkPlayerMove = false // box was filled 
+            return {boxCoords, playerMove, checkPlayerMove}
+        }
+        return {boxCoords, playerMove, checkPlayerMove}
+    }
 
-                }
-            } else if(el[0] === boxCoords.left && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.top){
-                boxCoords.sides.top = true
-                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.playerMove ? COLORS.boxPlayer1 : COLORS.boxPlayer2
-                    !this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
-                    checkPlayerMove = false
-                }
-            } else if(el[0] === boxCoords.right && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.bottom ){
-                boxCoords.sides.right = true
-                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.playerMove ? COLORS.boxPlayer1 : COLORS.boxPlayer2
-                    !this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
-                    checkPlayerMove = false
-                }
-            } else if(el[0] === boxCoords.left && el[1].toFixed(5)  === boxCoords.bottom.toFixed(5) && el[2]  === boxCoords.right && el[3].toFixed(5) === boxCoords.bottom.toFixed(5) ){
-                boxCoords.sides.bottom = true
-                if (boxCoords.sides.top && boxCoords.sides.left && boxCoords.sides.right && boxCoords.sides.bottom){ 
-                    boxCoords.color = this.state.playerMove ? COLORS.boxPlayer1 : COLORS.boxPlayer2
-                    !this.state.playerMove ? this.setState({ player2CounterFillBox : this.state.player2CounterFillBox +1}) : this.setState({ player1CounterFillBox : this.state.player1CounterFillBox +1})
-                    playerMove = (checkPlayerMove) ? !playerMove : playerMove
-                    checkPlayerMove = false
-                }
+    handleClickLine = (el) => { // 
+        let playerMove = this.state.playerMove
+        let checkPlayerMove = true // variable to check whether the boxes is already fill
+        const coords = this.state.coordsBoxes.forEach(boxCoords =>{     
+            // If you click on a line, we are looking for which boxes this is a side    
+            if( el[0] === boxCoords.left && el[1] === boxCoords.top && el[2] === boxCoords.left && el[3]  === boxCoords.bottom ){ // left side  
+                boxCoords.sides.left = true; // left sides were clicked
+                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
+            
+            } else if(el[0] === boxCoords.left && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.top){ //top side
+                boxCoords.sides.top = true; // top sides were clicked
+                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
+            
+            } else if(el[0] === boxCoords.right && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.bottom ){ // left side
+                boxCoords.sides.right = true; // right sides were clicked
+                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
+            
+            } else if(el[0] === boxCoords.left && el[1]  === boxCoords.bottom && el[2]  === boxCoords.right && el[3] === boxCoords.bottom ){ // bottom side
+                boxCoords.sides.bottom = true; // bottom sides were clicked
+                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
             } 
         })
         
         return this.setState({coordsBox: coords, playerMove: !playerMove })
     }
 
-    whoIsWinner = () =>{
+    whoIsWinner = () =>{ 
         if(this.state.player1CounterFillBox + this.state.player2CounterFillBox === this.state.colomn * this.state.row){
             if(this.state.player1CounterFillBox > this.state.player2CounterFillBox){
                 return(
                     <Modal open={this.state.showModalWinner} onClose={this.handleCloseModalWinner} center>
-                        <h2 className='winner1'> players1 wins game</h2>
+                        <h2 className='winner1'> player 1 winner </h2>
                     </Modal>
                 )
             }else if (this.state.player1CounterFillBox < this.state.player2CounterFillBox){
                 return(
                     <Modal open={this.state.showModalWinner} onClose={this.handleCloseModalWinner} center>
-                       <h2 className='winner2'> players2 wins game</h2>
+                       <h2 className='winner2'> player 2 winner </h2>
                     </Modal>
                 )
             }else{
                 return(
                     <Modal open={this.state.showModalWinner} onClose={this.handleCloseModalWinner} center>
-                           <h2 className='draw'> draw game</h2>
+                           <h2 className='draw'> draw </h2>
                     </Modal>
                     
                 )
@@ -212,38 +189,32 @@ export default class BodyCanvas extends Component{
     }
 
     reset = () =>{
-        // const coords = this.boxesCoords()
         this.boxesCoords()
         this.setState({
-            playerMove: Math.random() < 0.5, // who should move 
+            playerMove: Math.random() < 0.5, 
             player1CounterFillBox: 0, 
             player2CounterFillBox: 0,
+            showModalWinner: true,
             reset: true
-           
         })
     }
 
     changeSizeRowAndColomn = () => {
-
         this.setState({
             colomn: +this.refs.colomn.value,
             row: +this.refs.row.value,
             marginWidth: WIDTH / (+this.refs.colomn.value + 2),
             marginHeight: HEIGHT / (+this.refs.row.value + 2),
-            showModalSettings: false
-            
-        })
-        console.log(this.state.colomn)
-        console.log(this.state.row)
-        // this.boxesCoords()
-        
+            showModalSettings: false,
+            reset: true
+        })  
     }
 
-    addOneColomn = () => this.refs.colomn.value = +this.refs.colomn.value + 1
+    addOneColomn = () => this.refs.colomn.value = (+this.refs.colomn.value < 10 ) ? +this.refs.colomn.value + 1 : 10
 
     subOneColomn = () => this.refs.colomn.value = (+this.refs.colomn.value > 1) ? +this.refs.colomn.value - 1 : 1
 
-    addOneRow = () => this.refs.row.value = +this.refs.row.value + 1
+    addOneRow = () => this.refs.row.value = (+this.refs.row.value < 10 ) ? +this.refs.row.value + 1 : 10
 
     subOneRow = () => this.refs.row.value = (+this.refs.row.value > 1) ? +this.refs.row.value - 1 : 1
     
@@ -271,8 +242,7 @@ export default class BodyCanvas extends Component{
                 />
             )
         })
-
-        
+ 
         const boxes = this.state.coordsBoxes.map((el, index) =>{
             return (
                 <Box
@@ -285,10 +255,8 @@ export default class BodyCanvas extends Component{
                 />  
             )
         })
-
         
         const winner = this.whoIsWinner()
-        // console.log(this.state.reset)
         return(
             <div className='app'>
                 <div className='tools'>
@@ -301,7 +269,7 @@ export default class BodyCanvas extends Component{
                                     <div>colomn</div>
                                     <div>
                                         <button type="button" onClick={this.subOneColomn}>-</button>
-                                        <input ref='colomn' type="text" value={this.state.colomn} max="20" readOnly  />
+                                        <input ref='colomn' type="text" value={this.state.colomn} max="20" readOnly />
                                         <button type="button" onClick={this.addOneColomn}>+</button>
                                     </div>
                                 </div>
@@ -315,8 +283,6 @@ export default class BodyCanvas extends Component{
                                 </div>
                                 <button className='btn' onClick={this.changeSizeRowAndColomn}>apply</button>
                             </div>
-
-                           
                            
                         </Modal>
                     </div>
@@ -326,14 +292,21 @@ export default class BodyCanvas extends Component{
                     <div>
                         <button onClick={this.handleOpenModalTutorial} className='tutorial btn'>tutorial</button>
                         <Modal open={this.state.showModalTutorial} onClose={this.handleCloseModalTutorial} center>
-                           <h2>Tutorial</h2>
+                           <h2 className='tutorial'>Tutorial</h2>
+                           <p>
+                                The game starts with an empty grid of dots. Two players take turns adding a single horizontal or vertical line between two unjoined adjacent dots. 
+                                Each player has a color that can identify who have a move. 
+                                A player who completes the fourth side of a 1×1 box earns one point and takes another turn. (A cell is filled 
+                                a color that identifies the player in the box) The game ends when no more lines can be placed. The winner is the player with the most points. 
+                                The board may be of any size grid from 1×1 to 10×10.
+                             </p>
                         </Modal>
                     </div>
                 </div>
 
                 <div className='gameInfo'>
                     <div className='player1' > 
-                        <div style = { this.state.playerMove ? {borderBottom: `2px solid ${COLORS.boxPlayer1}`} : {}} > player 1  </div> 
+                        <div style = { this.state.playerMove ? {borderBottom: `2px solid ${COLORS.boxPlayer1}`} : {}} > player 1 </div> 
                         <div className='score'>{this.state.player1CounterFillBox} </div>
                     </div>
 
@@ -343,7 +316,7 @@ export default class BodyCanvas extends Component{
                     </div>
                 </div>
                 
-                 {winner}
+                {winner}
                 <div className='canvas'>
                     <Stage  onMouseMove={this.highlightSide} width={WIDTH+border*2} height={HEIGHT+border*2}>
                         <Layer ref= 'layer'> 
@@ -359,7 +332,6 @@ export default class BodyCanvas extends Component{
                             />  
                             {boxes}
                             {lines}
-                            
                             {circles}
     
                         </Layer>
