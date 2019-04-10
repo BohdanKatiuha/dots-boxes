@@ -12,7 +12,7 @@ export default class Box extends Component{
                 width={right - left}
                 height={bottom - top}
                 fill={this.props.color} 
-            /> 
+            />
         )
     }
 }
