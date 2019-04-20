@@ -25,12 +25,16 @@ sudo apt install nodejs
 ```
 sudo apt install npm
 ```
-If you want to create a new single 
-page application with React
+We will use npm to install the create-react-app 
 ```
 sudo npm install -g create-react-app
 ```
-
+If you want to create a new single 
+page application with React
+```
+create-react-app name-app
+cd name-app
+```
 Install react-konva and konva libraries
 ```
 npm install react-konva konva --save
@@ -39,7 +43,10 @@ Install react-responsive-modal library
 ```
 npm install react-responsive-modal --save
 ```
-Runs the app in the development mode. 
+
+To start the application, you need copy the source code into empty project
+
+Runs the app in the development mode.
 Open http://localhost:3000 to view it in the browser.
 
 The page will reload if you make edits.

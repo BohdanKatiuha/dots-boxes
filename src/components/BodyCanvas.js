@@ -57,8 +57,6 @@ export default class BodyCanvas extends Component{
        
     }
 
-
-
     // update states for reset and resize
     componentDidUpdate(prevProps, prevState){
         
@@ -72,9 +70,7 @@ export default class BodyCanvas extends Component{
                 marginHeight: this.state.height / (this.state.row + 2),  // distance height between dots
                 reset: false
             })
-        } 
-        
-          
+        }      
     }
 
     gridX = (i) => this.state.marginWidth * (i + 1) 
@@ -129,7 +125,6 @@ export default class BodyCanvas extends Component{
                     sides: {left: false, top: false, right: false, bottom: false}, // for check lateral sides
                     color: this.state.colorBoxes
                 })
-                      
             }
         }
         this.setState({coordsBoxes: coordsBoxes})
@@ -147,30 +142,25 @@ export default class BodyCanvas extends Component{
         return {boxCoords, playerMove, checkPlayerMove}
     }
 
+    ifLineIsBoxSide = (el, boxCoords, playerMove, checkPlayerMove, side, coord) => {
+        if( el[0] === boxCoords[coord[0]] && el[1] === boxCoords[coord[1]] && el[2] === boxCoords[coord[2]] && el[3]  === boxCoords[coord[3]] ){ //  side  
+            boxCoords.sides[side] = true; // side were clicked
+            return ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
+        }
+        return ({boxCoords, playerMove, checkPlayerMove})
+    }
+
     handleClickLine = (el) => { // 
         let playerMove = this.state.playerMove
         let checkPlayerMove = true // variable to check whether the boxes is already fill
-        const coords = this.state.coordsBoxes.forEach(boxCoords =>{     
-            // If you click on a line, we are looking for which boxes this is a side    
-            if( el[0] === boxCoords.left && el[1] === boxCoords.top && el[2] === boxCoords.left && el[3]  === boxCoords.bottom ){ // left side  
-                boxCoords.sides.left = true; // left sides were clicked
-                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
-            
-            } else if(el[0] === boxCoords.left && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.top){ //top side
-                boxCoords.sides.top = true; // top sides were clicked
-                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
-            
-            } else if(el[0] === boxCoords.right && el[1] === boxCoords.top && el[2]  === boxCoords.right && el[3]  === boxCoords.bottom ){ // left side
-                boxCoords.sides.right = true; // right sides were clicked
-                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
-            
-            } else if(el[0] === boxCoords.left && el[1]  === boxCoords.bottom && el[2]  === boxCoords.right && el[3] === boxCoords.bottom ){ // bottom side
-                boxCoords.sides.bottom = true; // bottom sides were clicked
-                ({boxCoords, playerMove, checkPlayerMove} = this.checkAllSideWereCkicked(boxCoords, playerMove, checkPlayerMove))
-            } 
+        this.state.coordsBoxes.forEach(boxCoords =>{     
+            // If you click on a line, we are looking for which boxes this is a side   
+            ({boxCoords, playerMove, checkPlayerMove} = this.ifLineIsBoxSide(el, boxCoords, playerMove, checkPlayerMove, 'left', ['left', 'top', 'left', 'bottom']));
+            ({boxCoords, playerMove, checkPlayerMove} = this.ifLineIsBoxSide(el, boxCoords, playerMove, checkPlayerMove, 'top', ['left', 'top', 'right', 'top']));
+            ({boxCoords, playerMove, checkPlayerMove} = this.ifLineIsBoxSide(el, boxCoords, playerMove, checkPlayerMove, 'right', ['right', 'top', 'right', 'bottom']));
+            ({boxCoords, playerMove, checkPlayerMove} = this.ifLineIsBoxSide(el, boxCoords, playerMove, checkPlayerMove, 'bottom', ['left', 'bottom', 'right', 'bottom']));
         })
-        
-        return this.setState({coordsBox: coords, playerMove: !playerMove })
+        return this.setState({playerMove: !playerMove })
     }
 
     whoIsWinner = () =>{ 
